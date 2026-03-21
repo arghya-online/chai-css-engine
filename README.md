@@ -1,375 +1,530 @@
-<<<<<<< HEAD
-# ChaiTailwind
+# chai-css-engine
 
-A lightweight runtime utility-class engine inspired by Tailwind CSS.  
-Instead of prebuilding CSS, this project scans the DOM at page load, interprets classes that start with `chai-`, generates style objects, and applies inline styles directly to matching elements.
+`chai-css-engine` is a lightweight utility-class CSS engine inspired by Tailwind-style workflows.
 
----
+You write utility classes directly in HTML (for example: `chai-bg-red-500`, `chai-p-4`, `chai-fs-xl`).
+At runtime, the engine scans your DOM, converts each utility class into a real CSS rule, and injects those rules into a `<style>` tag.
 
-## 1. Project Purpose
+This README is a beginner-first, detailed technical guide covering:
 
-This project demonstrates a **mini JIT-like styling engine** for utility classes in pure JavaScript.
-
-Core idea:
-
-- Write classes like `chai-p-20` or `chai-bg-red-500` in HTML.
-- At runtime, parse those classes.
-- Convert them to CSS style rules.
-- Apply styles directly to elements via `element.style`.
-
-It is designed as a learning/experimental architecture rather than a production CSS framework.
+- Setup from zero
+- What each file does
+- How modules connect
+- How each class is parsed and converted
+- How to customize tokens (colors, spacing, font sizes)
+- Common errors and how to debug
 
 ---
 
-## 2. High-Level Architecture
+## 1) What this project is and is not
 
-The runtime pipeline is:
+### What it is
 
-1. Browser loads `index.html`.
-2. `index.html` loads `src/index.js` as ES module.
-3. `src/index.js` calls `startEngine()` from `src/engine.js`.
-4. `startEngine()` waits for `DOMContentLoaded`.
-5. Engine calls `extractClasses()` to collect all `chai-*` classes.
-6. For each extracted class:
-   - `generateStyle(className)` converts class token → style object.
-   - `applyStyle(element, styleObject)` writes inline CSS to the element.
+- A runtime utility engine
+- A small, readable architecture for learning and experimentation
+- A library build powered by Vite
+- A demo page showing setup and class usage
 
-So the project behaves like a tiny interpreter:
+### What it is not
 
-- **Input:** class tokens (`chai-...`)
-- **Translation:** JS mapping rules
-- **Output:** inline style declarations
+- A full Tailwind replacement
+- A precompiled production CSS framework
+- A system with variants like `hover:`, `md:` (not implemented yet)
 
 ---
 
-## 3. Folder and File Responsibilities
+## 2) Prerequisites
 
-### `index.html`
-
-Primary demo page and runtime entry document.
-
-Responsibilities:
-
-- Defines sample UI blocks using `chai-*` utility classes.
-- Loads the engine through:
-  - `<script type="module" src="./src/index.js"></script>`
-
-Notes:
-
-- This file is currently a full preview page with sections for color, spacing, typography, sizing, and border/radius.
-
-### `src/index.js`
-
-Minimal bootstrap module.
-
-Responsibilities:
-
-- Imports `startEngine` from `engine.js`.
-- Executes `startEngine()`.
-
-### `src/engine.js`
-
-Main orchestrator.
-
-Responsibilities:
-
-- Imports the three core modules:
-  - `extractClasses` from `extratct.js`
-  - `generateStyle` from `generate.js`
-  - `applyStyle` from `apply.js`
-- Loads Google Inter font and applies default body font.
-- Runs processing after `DOMContentLoaded`.
-- Performs the core loop:
-  - extract class records
-  - generate style object for each class
-  - apply style object to the corresponding element
-
-### `src/extratct.js`
-
-Class discovery module.  
-(Spelling is currently `extratct.js`, not `extract.js`.)
-
-Responsibilities:
-
-- Queries all DOM elements (`document.querySelectorAll("*")`).
-- Iterates through each element’s class list.
-- Filters classes by prefix `chai-`.
-- Returns array of records:
-  - `{ element, className }`
-
-### `src/generate.js`
-
-Class parser and style generator.
-
-Responsibilities:
-
-- Parses `chai-*` classes by splitting on `-`.
-- Identifies utility type (`bg`, `text`, `p`, `m`, `fs`, `w`, `h`, `border`, `rounded`, `radius`).
-- Resolves value segment(s).
-- Produces style object such as:
-  - `{ "padding": "20px" }`
-  - `{ "background-color": "#ef4444" }`
-
-Includes:
-
-- Numeric-to-px conversion helper (`withPxIfNumeric`).
-- Tailwind-like shade palette resolver (`resolveShadeColor`) for color utilities.
-
-### `src/apply.js`
-
-Style application module.
-
-Responsibilities:
-
-- Receives DOM element and style object.
-- Iterates style keys.
-- Writes each style via `element.style[key] = value`.
-
-### `package.json`
-
-Project metadata file.
-
-Current state:
-
-- Minimal metadata only.
-- No build/dev scripts configured.
+- Node.js `>= 14.0.0` (from `package.json`)
+- npm
+- A modern browser with ES module support
 
 ---
 
-## 4. Utility Class Grammar
+## 3) Installation and first run (beginner path)
 
-General pattern:
+### Step 1: Open the correct folder
 
-`chai-<type>-<value>`
+Make sure your terminal is inside the project folder that contains `package.json`.
 
-Examples:
+```powershell
+cd "S:\Programming Base\CohortAssignments\chaicode_blog_template\chai-css-engine"
+```
 
-- `chai-p-20`
-- `chai-fs-36`
-- `chai-bg-red-500`
-- `chai-text-slate-700`
+Quick checks:
 
-### Supported utility types
+```powershell
+Get-Location
+Test-Path .\package.json
+```
 
-- `bg` → `background-color`
-- `text` → `color`
-- `p` → `padding`
-- `m` → `margin`
-- `fs` → `font-size`
-- `w` → `width`
-- `h` → `height`
-- `border` → `border`
-- `rounded` / `radius` → `border-radius`
+`Test-Path` must return `True`.
 
----
+### Step 2: Install packages
 
-## 5. Color Shade System
+```bash
+npm install
+```
 
-`bg` and `text` support Tailwind-like shades:
+### Step 3: Start dev server
 
-- Form: `chai-bg-<color>-<shade>`
-- Form: `chai-text-<color>-<shade>`
+```bash
+npm run dev
+```
 
-Current built-in palette names:
+Vite may switch ports automatically if `5173` is busy. Use the exact URL printed in the terminal.
 
-- `red`
-- `blue`
-- `green`
-- `slate`
+### Step 4: Open app
 
-Current shade keys:
-
-- `50, 100, 200, 300, 400, 500, 600, 700, 800, 900`
-
-Default behavior:
-
-- If shade is omitted (example `chai-bg-red`), it defaults to `500`.
-- If token is unknown in palette, value is used as-is (fallback), allowing native CSS colors such as:
-  - `chai-bg-white`
-  - `chai-text-black`
-  - `chai-bg-#ff0000` (if class tokenization permits in your HTML usage)
+- Root URL redirects to demo: `http://localhost:<port>/`
+- Demo page direct path: `http://localhost:<port>/demo/`
 
 ---
 
-## 6. Value Conversion Rules
+## 4) NPM scripts explained
 
-### Numeric conversion
+From `package.json`:
 
-For spacing/sizing/radius/font utilities, pure numeric values are converted to `px`:
-
-- `chai-p-20` → `padding: 20px`
-- `chai-w-300` → `width: 300px`
-- `chai-radius-12` → `border-radius: 12px`
-
-### Raw pass-through
-
-If value is not purely numeric, it is passed through unchanged:
-
-- `chai-border-solid` → `border: solid` (valid but visually minimal)
-- `chai-border-1px-solid-red` → `border: 1px-solid-red` (string passed as-is; format may not be valid CSS unless spacing is represented differently)
+- `npm run dev`
+  - Starts Vite dev server for local development
+- `npm run build`
+  - Builds library outputs into `dist/`
+- `npm run preview`
+  - Serves built output for preview
 
 ---
 
-## 7. File-to-File Connections (Dependency Graph)
+## 5) Project structure and purpose
 
-- `index.html` → loads `src/index.js`
-- `src/index.js` → imports and calls `startEngine` from `src/engine.js`
-- `src/engine.js` → imports:
-  - `src/extratct.js`
-  - `src/generate.js`
-  - `src/apply.js`
-- `src/engine.js` runtime loop:
-  - `extractClasses()` output feeds `generateStyle()`
-  - `generateStyle()` output feeds `applyStyle()`
+```text
+chai-css-engine/
+  demo/
+    index.html
+  src/
+    apply.js
+    chai.config.js
+    engine.js
+    extratct.js
+    generate.js
+    index.js
+  index.html
+  vite.config.js
+  package.json
+```
 
-This creates a clear **three-stage pipeline**:
+### High-level responsibility map
 
-1. Discovery (`extractClasses`)
-2. Translation (`generateStyle`)
-3. Application (`applyStyle`)
+- `src/index.js`: Public entry exports and re-exports
+- `src/engine.js`: Runtime orchestration
+- `src/extratct.js`: DOM class discovery
+- `src/generate.js`: Utility parsing and CSS rule generation
+- `src/apply.js`: StyleSheet creation + rule insertion
+- `src/chai.config.js`: Theme/config tokens (prefix, colors, spacing, font sizes)
+- `demo/index.html`: Beginner demo/tutorial page
+- `index.html`: Redirects `/` to `/demo/`
 
 ---
 
-## 8. Runtime Lifecycle Details
+## 6) End-to-end runtime flow
 
 When `startEngine()` runs:
 
-1. Prints `Engine initiated` to console.
-2. Registers `DOMContentLoaded` listener.
-3. On DOM ready:
-   - Injects Inter font `<link>` into `<head>`.
-   - Sets `document.body.style.fontFamily = "Inter, sans-serif"`.
-   - Scans all elements for `chai-*` classes.
-   - Applies each utility class as inline style.
+1. Waits for `DOMContentLoaded`
+2. Loads Inter font link and sets body font
+3. Calls `extractClasses()` to collect `chai-*` classes from DOM
+4. Deduplicates class names with `Set`
+5. Ensures one runtime stylesheet exists
+6. Converts each class name to a CSS rule using `generateRule()`
+7. Inserts each rule into the runtime stylesheet
 
-Important behavior:
-
-- Processing happens once at load time.
-- Dynamically added elements/classes after load are not reprocessed automatically.
+Result: elements are styled by generated CSS class selectors, not inline per-element style application.
 
 ---
 
-## 9. How to Run
+## 7) File-by-file deep dive
 
-Option A (simplest):
+## `src/chai.config.js`
 
-- Open `index.html` in a browser that supports ES modules.
+This is your design-token source.
 
-Option B (recommended for development):
+### Main keys
 
-- Serve project through a local static server (for consistent module behavior).
+- `prefix`: utility class prefix (`chai`)
+- `defaultShade`: fallback color shade when shade not specified (`500`)
+- `theme.spacing`: spacing scale map
+- `theme.fontSize`: font size scale map
+- `theme.colors`: palette with shade steps (`50` to `900`)
 
-No bundler or build step is required in current architecture.
+### Why this matters
 
----
-
-## 10. Known Constraints / Limitations
-
-1. **One-time processing only**
-   - No MutationObserver or re-run hook for dynamic DOM updates.
-
-2. **Inline style strategy**
-   - Styles are applied directly on elements, not through generated stylesheet classes.
-
-3. **Tokenization limitations**
-   - Class values are split by `-`, so complex CSS values are constrained by class encoding style.
-
-4. **Border utility is simplistic**
-   - `border` utility currently assigns the value string directly.
-
-5. **No precedence system**
-   - If conflicting utilities are present, later-applied inline assignments win by iteration order.
-
-6. **Typo in filename**
-   - `extratct.js` is misspelled; works only because imports match that exact filename.
+The parser in `generate.js` resolves values from these maps first, then falls back to raw numeric/custom parsing.
 
 ---
 
-## 11. Extending the Engine
+## `src/extratct.js`
 
-### Add a new utility type
+> Filename note: file is currently spelled `extratct.js` (typo), and imports match this name.
 
-1. Open `src/generate.js`.
-2. Add a new `case` in the switch on `type`.
-3. Map token to a valid CSS property.
+### `extractClasses()` behavior
 
-Example pattern:
+- Selects all elements with `document.querySelectorAll("*")`
+- Iterates each element's `classList`
+- Keeps only classes starting with `chai-`
+- Returns records shaped like:
 
 ```js
-case "lh":
-  style["line-height"] = withPxIfNumeric(value);
-  break;
+{
+  (element, className);
+}
 ```
 
-Then use in HTML:
+### Why include `element`
 
-- `chai-lh-28`
-
-### Add new color palettes
-
-1. Open `src/generate.js`.
-2. Extend `colorPalette` with new color family and shade scale.
-3. Use classes like `chai-bg-emerald-500`.
-
-### Support dynamic content
-
-You can enhance `src/engine.js` with:
-
-- a re-run function
-- `MutationObserver` to process newly inserted nodes/classes
+The previous architecture used direct inline style application.
+Current engine only needs unique class names for rule generation, but this record shape remains compatible.
 
 ---
 
-## 12. Troubleshooting Guide
+## `src/generate.js`
 
-### Utilities not applying
+This file is the parser/compiler layer.
+
+### Helper: `withUnits(rawValue, scale = {})`
+
+Resolution order:
+
+1. Bracket arbitrary value (`[37px]`) -> `37px`
+2. Token lookup in provided scale (`4` -> `1rem` from spacing)
+3. Numeric value -> append `px` (`320` -> `320px`)
+4. Percent shorthand with `p` suffix (`50p` -> `50%`)
+5. Otherwise return raw value unchanged
+
+### Helper: `resolveColor(rawValue, config)`
+
+- Supports bracket values (`[#1f2937]` -> `#1f2937`)
+- Splits token by `-`
+- Detects shade if last segment is 2-3 digits
+- Uses `config.defaultShade` when no shade provided
+- Looks up `config.theme.colors[colorName][shade]`
+- Falls back to raw value if not found
+
+Example:
+
+- `red-500` -> `#ef4444`
+- `red` -> uses default shade `500`
+
+### Helper: `escapeClassName(className)`
+
+Escapes special characters for CSS selectors.
+Needed for classes containing symbols like `[` `]` `#` `%` etc.
+
+### Core: `generateStyle(className, config = chaiConfig)`
+
+- Validates prefix (`chai-` by default)
+- Extracts utility type and value
+- Resolves style output as object:
+
+```js
+{ property: "padding", value: "1rem" }
+```
+
+Supported utility types:
+
+- `bg` -> `background-color`
+- `text` -> `color`
+- `p` -> `padding`
+- `m` -> `margin`
+- `fs` -> `font-size`
+- `w` -> `width`
+- `h` -> `height`
+- `border` -> `border` (underscores converted to spaces)
+- `rounded`, `radius` -> `border-radius`
+
+Returns `null` for unknown type.
+
+### Core: `generateRule(className, config = chaiConfig)`
+
+- Calls `generateStyle(...)`
+- Builds selector `.${escapedClassName}`
+- Returns rule string:
+
+```css
+.chai-p-4 {
+  padding: 1rem;
+}
+```
+
+Returns `null` for unsupported/invalid class.
+
+---
+
+## `src/apply.js`
+
+This file handles stylesheet injection.
+
+### Constant: `STYLE_TAG_ID`
+
+- Runtime style tag id: `chai-runtime-styles`
+
+### `ensureStyleSheet()`
+
+- Finds `<style id="chai-runtime-styles">`
+- Creates it if missing
+- Returns `styleTag.sheet` (`CSSStyleSheet`)
+
+### `applyRule(sheet, ruleText)`
+
+- Guards empty args
+- Calls `sheet.insertRule(ruleText, sheet.cssRules.length)`
+- Catches invalid rules and logs a warning instead of crashing
+
+### `applyStyle(element, styleObject)`
+
+Legacy inline application helper retained for compatibility.
+Current engine path primarily uses stylesheet rule insertion.
+
+---
+
+## `src/engine.js`
+
+Main runtime coordinator.
+
+### Internal helper: `loadDefaultFont()`
+
+- Injects Inter font `<link>` into document head
+
+### Internal helper: `applyDefaultFont()`
+
+- Sets body font family to `Inter, sans-serif`
+
+### Public API: `startEngine()`
+
+Detailed sequence:
+
+1. Logs `Engine initiated`
+2. Registers `DOMContentLoaded` listener
+3. On ready:
+   - loads default font
+   - applies default font to body
+   - calls `extractClasses()`
+   - builds unique class list with `new Set(...)`
+   - gets runtime stylesheet via `ensureStyleSheet()`
+   - loops each class -> `generateRule(...)` -> `applyRule(...)`
+4. Logs number of generated utility rules
+
+This design avoids re-inserting duplicate CSS for repeated class names.
+
+---
+
+## `src/index.js`
+
+Public module barrel file.
+
+Exports:
+
+- `startEngine`
+- `extractClasses`
+- `generateStyle`
+- `generateRule`
+- `applyStyle`
+- `ensureStyleSheet`
+- `applyRule`
+- `chaiConfig`
+
+This lets users import either high-level API or lower-level internals.
+
+---
+
+## `demo/index.html`
+
+Purpose:
+
+- Beginner setup guide
+- Utility examples
+- Color examples
+- Starter template snippet
+
+It imports and runs:
+
+```js
+import { startEngine } from "../src/index.js";
+startEngine();
+```
+
+---
+
+## `index.html` (root)
+
+Purpose:
+
+- Redirect root `/` to `/demo/`
+- Prevent 404 when opening `http://localhost:<port>/`
+
+---
+
+## `vite.config.js`
+
+Two main sections:
+
+- `build.lib`
+  - Entry: `src/index.js`
+  - Name: `ChaiCssEngine`
+  - Output formats: `es`, `umd`
+  - Output folder: `dist`
+- `server.port`
+  - Preferred dev port: `5173`
+  - Vite auto-falls to next free port if occupied
+
+---
+
+## 8) Utility grammar reference
+
+Base pattern:
+
+```text
+chai-<utility>-<value>
+```
+
+Examples:
+
+- `chai-bg-red-500`
+- `chai-text-slate-700`
+- `chai-p-4`
+- `chai-fs-xl`
+- `chai-w-320`
+- `chai-w-50p`
+- `chai-w-[37px]`
+- `chai-border-1px_solid_#334155`
+- `chai-rounded-12`
+
+### Value behavior summary
+
+- Scale lookup first (`4`, `xl`, etc.)
+- Numeric becomes `px`
+- `p` suffix becomes `%`
+- Bracket values are raw passthrough
+- Unknown color token falls back to raw CSS color string
+
+---
+
+## 9) How to clean HTML before using this engine
+
+When integrating into a new page:
+
+1. Remove old utility frameworks/classes from markup
+2. Keep only semantic HTML + `chai-*` classes
+3. Ensure module script imports `startEngine()`
+4. Avoid duplicate script bootstraps
+5. Verify classes start with configured prefix (`chai-` by default)
+
+Minimal starting template:
+
+```html
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chai App</title>
+  </head>
+  <body class="chai-bg-slate-50 chai-p-20">
+    <h1 class="chai-fs-3xl chai-text-slate-800">Hello Chai</h1>
+
+    <script type="module">
+      import { startEngine } from "../src/index.js";
+      startEngine();
+    </script>
+  </body>
+</html>
+```
+
+---
+
+## 10) Troubleshooting
+
+## `npm run dev` fails with `ENOENT package.json`
+
+Cause: running command in wrong directory.
+
+Fix:
+
+```powershell
+cd "...\chai-css-engine"
+npm install
+npm run dev
+```
+
+## `localhost` shows 404
+
+- Use root URL that redirects to demo: `/`
+- Or open `/demo/` directly
+- Confirm dev server is running on printed port
+
+## Styles do not apply
 
 Check:
 
-1. `index.html` script path must be `./src/index.js`.
-2. Class names must start with `chai-`.
-3. Browser console for warnings like `Unknown type: ...`.
-4. Ensure module files load without 404/network errors.
+1. Class prefix is `chai-` (or your configured prefix)
+2. Script imports and runs `startEngine()`
+3. No JS errors in browser console
+4. Utility type is implemented in `generateStyle()`
+5. Value format matches parser rules
 
-### Color class not resolving shade
+## Border utility looks wrong
 
-Check:
+Use underscore-separated values:
 
-1. Color family exists in `colorPalette`.
-2. Shade key is one of `50..900` present in that family.
-3. Class format is `chai-bg-color-shade` or `chai-text-color-shade`.
+- `chai-border-1px_solid_#334155`
 
-### Border not visible
-
-Use a complete border value encoding strategy compatible with your parser, or add dedicated border-width/style/color utilities in `generate.js`.
+Underscores are converted to spaces by parser.
 
 ---
 
-## 13. Current Example Coverage
+## 11) Extending the engine
 
-The current `index.html` preview demonstrates:
+### Add a new utility
 
-- Color shades (`bg`/`text`)
-- Typography (`fs`)
-- Spacing (`p`, `m`)
-- Sizing (`w`, `h`)
-- Border and radius (`border`, `rounded`, `radius`)
+In `src/generate.js`, add a `case` in `generateStyle`.
 
-It is intended as a quick visual verification page for engine behavior.
+Example `opacity` utility:
+
+```js
+case "opacity":
+  return { property: "opacity", value };
+```
+
+Use in HTML:
+
+```html
+<div class="chai-opacity-0.7"></div>
+```
+
+### Add new color families or shade values
+
+Update `theme.colors` in `src/chai.config.js`.
+
+### Change prefix
+
+Set `prefix` in `src/chai.config.js` (for example `cx`), then classes become `cx-bg-red-500`.
 
 ---
 
-## 14. Summary
+## 12) Current limitations
 
-ChaiTailwind is a modular, runtime utility interpreter built from four focused stages:
+- No variant support (`hover:`, `focus:`, responsive prefixes)
+- No automatic re-scan for DOM changes after initial load
+- No conflict resolution/layer system beyond insertion order
+- Runtime work happens in browser (not precompiled CSS)
 
-- **Bootstrap:** `index.js`
-- **Orchestration:** `engine.js`
-- **Class extraction:** `extratct.js`
-- **Style generation:** `generate.js`
-- **Style application:** `apply.js`
+---
 
-The design is intentionally simple and educational, while still being extensible for additional utility types, palettes, and runtime reprocessing features.
-=======
-# chai-css-engine
->>>>>>> ea656f414fca77adaeb9e36b4f91156b2647f4d5
+## 13) Summary
+
+`chai-css-engine` is a modular runtime utility compiler with a simple architecture:
+
+- Scan class names
+- Parse tokens
+- Generate CSS rules
+- Inject rules once into runtime stylesheet
+
+It is intentionally small so the full system is easy to read, debug, and extend.

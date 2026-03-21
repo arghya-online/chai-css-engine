@@ -1,13 +1,129 @@
 <!doctype html>
 <html>
   <head>
-    <title>Chai Utility Preview</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chai CSS Engine - Setup Guide</title>
   </head>
 
   <body class="chai-bg-slate-100 chai-p-20">
-    <a href="server.html" class="chai-text-blue-600 chai-m-10"
-      >Go to Server-Side Rendering Demo</a
+    <main
+      class="chai-bg-white chai-p-20 chai-rounded-12 chai-border-1px_solid_#cbd5e1"
     >
+      <h1 class="chai-m-0 chai-fs-3xl">Chai CSS Engine: Start Here</h1>
+      <p class="chai-m-10 chai-text-slate-700 chai-fs-base">
+        A simple utility-class engine. Add classes with <strong>chai-</strong>
+        prefix, and styles are generated at runtime.
+      </p>
+
+      <section
+        class="chai-m-20 chai-bg-slate-50 chai-p-16 chai-rounded-8 chai-border-1px_solid_#e2e8f0"
+      >
+        <h2 class="chai-m-0 chai-fs-xl">Step 1: Install dependencies</h2>
+        <p class="chai-m-10 chai-text-slate-700">
+          Run this inside the project root:
+        </p>
+        <pre
+          class="chai-m-0 chai-bg-slate-900 chai-text-slate-100 chai-p-12 chai-rounded-8 chai-fs-sm"
+        >
+npm install</pre
+        >
+        <p class="chai-m-10 chai-text-slate-700">Then start dev server:</p>
+        <pre
+          class="chai-m-0 chai-bg-slate-900 chai-text-slate-100 chai-p-12 chai-rounded-8 chai-fs-sm"
+        >
+npm run dev</pre
+        >
+      </section>
+
+      <section
+        class="chai-m-20 chai-bg-slate-50 chai-p-16 chai-rounded-8 chai-border-1px_solid_#e2e8f0"
+      >
+        <h2 class="chai-m-0 chai-fs-xl">Step 2: Clean HTML before using</h2>
+        <p class="chai-m-10 chai-text-slate-700">
+          Start with a minimal HTML file and remove old CSS frameworks/classes.
+        </p>
+        <pre
+          class="chai-m-0 chai-bg-slate-900 chai-text-slate-100 chai-p-12 chai-rounded-8 chai-fs-sm"
+        >
+&lt;!doctype html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta charset="UTF-8" /&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;
+    &lt;title&gt;Chai App&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body class="chai-bg-slate-50 chai-p-20"&gt;
+    &lt;h1 class="chai-fs-3xl chai-text-slate-800"&gt;Hello Chai&lt;/h1&gt;
+
+    &lt;script type="module"&gt;
+      import { startEngine } from "../src/index.js";
+      startEngine();
+    &lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</pre
+        >
+      </section>
+
+      <section
+        class="chai-m-20 chai-bg-slate-50 chai-p-16 chai-rounded-8 chai-border-1px_solid_#e2e8f0"
+      >
+        <h2 class="chai-m-0 chai-fs-xl">Step 3: Utility syntax</h2>
+        <p class="chai-m-10 chai-text-slate-700">
+          <strong>Pattern:</strong> chai-&lt;utility&gt;-&lt;value&gt;
+        </p>
+        <ul class="chai-m-0 chai-p-20 chai-text-slate-700">
+          <li>chai-bg-red-500 → background color</li>
+          <li>chai-text-slate-700 → text color</li>
+          <li>chai-p-4 / chai-m-8 → spacing from config scale</li>
+          <li>chai-w-320 → numeric becomes px</li>
+          <li>chai-w-50p → p suffix becomes %</li>
+          <li>chai-w-[37px] → arbitrary value</li>
+        </ul>
+      </section>
+
+      <section
+        class="chai-m-20 chai-bg-slate-50 chai-p-16 chai-rounded-8 chai-border-1px_solid_#e2e8f0"
+      >
+        <h2 class="chai-m-0 chai-fs-xl">Color examples</h2>
+        <p class="chai-m-10 chai-text-slate-700">
+          Use colors with shades: 50 to 900.
+        </p>
+        <div
+          class="chai-bg-red-100 chai-text-red-700 chai-p-12 chai-rounded-8 chai-m-10"
+        >
+          chai-bg-red-100 chai-text-red-700
+        </div>
+        <div
+          class="chai-bg-blue-100 chai-text-blue-700 chai-p-12 chai-rounded-8 chai-m-10"
+        >
+          chai-bg-blue-100 chai-text-blue-700
+        </div>
+        <div
+          class="chai-bg-green-100 chai-text-green-700 chai-p-12 chai-rounded-8 chai-m-10"
+        >
+          chai-bg-green-100 chai-text-green-700
+        </div>
+        <div
+          class="chai-bg-slate-200 chai-text-slate-800 chai-p-12 chai-rounded-8 chai-m-10"
+        >
+          chai-bg-slate-200 chai-text-slate-800
+        </div>
+      </section>
+
+      <section
+        class="chai-m-20 chai-bg-slate-50 chai-p-16 chai-rounded-8 chai-border-1px_solid_#e2e8f0"
+      >
+        <h2 class="chai-m-0 chai-fs-xl">
+          Step 4: Customize your design tokens
+        </h2>
+        <p class="chai-m-10 chai-text-slate-700">
+          Edit <strong>src/chai.config.js</strong> to change prefix, colors,
+          spacing, and font-size scale.
+        </p>
+      </section>
+    </main>
+
     <script type="module">
       import { startEngine } from "../src/index.js";
       startEngine();
