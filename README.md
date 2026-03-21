@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ChaiTailwind
 
 A lightweight runtime utility-class engine inspired by Tailwind CSS.  
@@ -369,3 +370,6 @@ ChaiTailwind is a modular, runtime utility interpreter built from four focused s
 - **Style application:** `apply.js`
 
 The design is intentionally simple and educational, while still being extensible for additional utility types, palettes, and runtime reprocessing features.
+=======
+# chai-css-engine
+>>>>>>> ea656f414fca77adaeb9e36b4f91156b2647f4d5
