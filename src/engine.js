@@ -1,6 +1,7 @@
 import { extractClasses } from "./extratct.js";
-import { generateStyle } from "./generate.js";
-import { applyStyle } from "./apply.js";
+import { generateRule } from "./generate.js";
+import { ensureStyleSheet, applyRule } from "./apply.js";
+import { chaiConfig } from "./chai.config.js";
 
 function loadDefaultFont() {
   const link = document.createElement("link");
@@ -24,15 +25,15 @@ export function startEngine() {
     loadDefaultFont();
     applyDefaultFont();
 
-    const result = extractClasses();
+    const extracted = extractClasses();
+    const classNames = [...new Set(extracted.map((item) => item.className))];
+    const sheet = ensureStyleSheet();
 
-    // result.forEach((items) => {
-    //   generateStyle(items.className);
-    // });
-
-    result.forEach((items) => {
-      const style = generateStyle(items.className);
-      applyStyle(items.element, style);
+    classNames.forEach((className) => {
+      const rule = generateRule(className, chaiConfig);
+      applyRule(sheet, rule);
     });
+
+    console.log(`Generated ${classNames.length} utility rules`);
   });
 }
