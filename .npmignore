@@ -1,0 +1,23 @@
+# Source files
+src/
+demo/
+
+# Development files
+vite.config.js
+.gitignore
+.npmignore
+README.md
+
+# Build tools
+node_modules/
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Tests and CI
+.github/
+.gitlab-ci.yml
+.travis.yml

@@ -1,0 +1,50 @@
+{
+  "name": "chai-css-engine",
+  "version": "1.0.0",
+  "description": "Lightweight runtime utility-class CSS engine inspired by Tailwind. Parse and apply styles directly via JavaScript.",
+  "type": "module",
+  "main": "dist/chai-css-engine.umd.cjs",
+  "module": "dist/chai-css-engine.js",
+  "types": "dist/chai-css-engine.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/chai-css-engine.js",
+      "require": "./dist/chai-css-engine.umd.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "css",
+    "engine",
+    "utility",
+    "tailwind",
+    "style",
+    "dom",
+    "jit"
+  ],
+  "author": "Arghya Majumdar",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/chai-css-engine.git"
+  },
+  "homepage": "https://github.com/yourusername/chai-css-engine#readme",
+  "bugs": {
+    "url": "https://github.com/yourusername/chai-css-engine/issues"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}
