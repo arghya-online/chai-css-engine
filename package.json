@@ -20,6 +20,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:lib": "vite build",
+    "build:site": "vite build --config vite.site.config.js",
+    "preview:site": "vite preview --outDir dist-site",
     "preview": "vite preview"
   },
   "keywords": [
